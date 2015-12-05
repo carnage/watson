@@ -1,0 +1,20 @@
+{
+  "name": "carnage/watson",
+  "description": "Performance analysis tool for doctrine",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Chris Riley",
+      "email": "t.carnage@gmail.com"
+    }
+  ],
+  "require": {
+    "doctrine/orm": "^2.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Carnage\\Watson\\": "src"
+    }
+  }
+}
