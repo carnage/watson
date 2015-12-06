@@ -1,9 +1,16 @@
 <?php
 namespace Carnage\Watson\Statement;
 
-class Statement implements \Doctrine\DBAL\Driver\Statement
+use Doctrine\DBAL\Driver\Statement as DoctrineStatement;
+
+class Statement implements DoctrineStatement
 {
+    /**
+     * @var DoctrineStatement
+     */
     private $wrapped;
+
+    private $rows = 0;
 
     public function __construct($wrapped)
     {
@@ -12,62 +19,71 @@ class Statement implements \Doctrine\DBAL\Driver\Statement
 
     public function closeCursor()
     {
-        // TODO: Implement closeCursor() method.
+        return $this->wrapped->closeCursor();
     }
 
     public function columnCount()
     {
-        // TODO: Implement columnCount() method.
+        return $this->wrapped->columnCount();
     }
 
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        // TODO: Implement setFetchMode() method.
+        return $this->wrapped->setFetchMode($fetchMode, $arg2, $arg3);
     }
 
     public function fetch($fetchMode = null)
     {
-        // TODO: Implement fetch() method.
+        $this->rows++;
+        return $this->wrapped->fetch($fetchMode);
     }
 
     public function fetchAll($fetchMode = null)
     {
-        // TODO: Implement fetchAll() method.
+        $return = $this->wrapped->fetchAll($fetchMode);
+
+        $this->rows += count($return);
+
+        return $return;
     }
 
     public function fetchColumn($columnIndex = 0)
     {
-        // TODO: Implement fetchColumn() method.
+        return $this->wrapped->fetchColumn($columnIndex);
     }
 
-    function bindValue($param, $value, $type = null)
+    public function bindValue($param, $value, $type = null)
     {
-        // TODO: Implement bindValue() method.
+        return $this->wrapped->bindValue($param, $value, $type);
     }
 
-    function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, $type = null, $length = null)
     {
-        // TODO: Implement bindParam() method.
+        return $this->wrapped->bindParam($column, $variable, $type, $length);
     }
 
-    function errorCode()
+    public function errorCode()
     {
-        // TODO: Implement errorCode() method.
+        return $this->wrapped->errorCode();
     }
 
-    function errorInfo()
+    public function errorInfo()
     {
-        // TODO: Implement errorInfo() method.
+        return $this->wrapped->errorInfo();
     }
 
-    function execute($params = null)
+    public function execute($params = null)
     {
-        // TODO: Implement execute() method.
+        return $this->wrapped->execute($params);
     }
 
-    function rowCount()
+    public function rowCount()
     {
-        // TODO: Implement rowCount() method.
+        return $this->wrapped->rowCount();
     }
 
+    public function getRows()
+    {
+        return $this->rows;
+    }
 }
