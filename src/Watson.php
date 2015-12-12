@@ -2,7 +2,7 @@
 namespace Carnage\Watson;
 
 use Carnage\Watson\Walker\SqlWalker;
-use Doctrine\ORM\Configuration;
+use Doctrine\ORM\Configuration as DoctrineConfig;
 use Doctrine\ORM\Query;
 
 class Watson
@@ -13,8 +13,9 @@ class Watson
     const HYDRATE_SINGLE_SCALAR = 'watson-hydrate-single-scalar';
     const HYDRATE_SIMPLEOBJECT = 'watson-hydrate-simple-object';
 
-    public static function init(Configuration $config)
+    public static function init(DoctrineConfig $config)
     {
+        $config = new Configuration($config);
         $config->setDefaultQueryHint(Query::HINT_CUSTOM_OUTPUT_WALKER, SqlWalker::class);
         $config->setCustomHydrationModes([
             static::HYDRATE_OBJECT => Hydrator\ObjectHydrator::class,
@@ -23,5 +24,7 @@ class Watson
             static::HYDRATE_SINGLE_SCALAR => Hydrator\SingleScalarHydrator::class,
             static::HYDRATE_SIMPLEOBJECT => Hydrator\SimpleObjectHydrator::class
         ]);
+
+        return $config;
     }
 }

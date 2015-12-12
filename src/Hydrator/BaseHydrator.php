@@ -9,6 +9,8 @@ abstract class BaseHydrator
 {
     private $wrapped;
 
+    private $em;
+
     protected $type;
 
     /**
@@ -18,6 +20,7 @@ abstract class BaseHydrator
      */
     public function __construct(EntityManagerInterface $em)
     {
+        $this->em = $em;
         $this->wrapped = $em->newHydrator($this->type);
     }
 
@@ -28,6 +31,9 @@ abstract class BaseHydrator
         $result = $this->wrapped->iterate($stmt, $resultSetMapping, $hints);
 
         //@TODO interegate $stmt and $result for stats
+        /**
+         * This requires a bit more work to hook into...
+         */
 
         return $result;
     }
@@ -38,7 +44,10 @@ abstract class BaseHydrator
 
         $result =  $this->wrapped->hydrateAll($stmt, $resultSetMapping, $hints);
 
-        //@TODO interegate $stmt and $result for stats
+        /** @var \Carnage\Watson\Configuration $config */
+        $config = $this->em->getConfiguration();
+
+        $config->getWatsonLogger()->logHydration($stmt->getRows(), count($result));
 
         return $result;
     }

@@ -4,6 +4,7 @@ namespace Carnage\Watson\Walker;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\SqlWalker as BaseWalker;
+use Carnage\Watson\Watson;
 
 class SqlWalker extends BaseWalker
 {
@@ -13,16 +14,41 @@ class SqlWalker extends BaseWalker
      */
     public function walkSelectClause($selectClause)
     {
+        /** @var \Carnage\Watson\Configuration $config */
+        $config = $this->getEntityManager()->getConfiguration();
+
+        $logger = $config->getWatsonLogger();
+        $logger->nextQuery();
+
         $sql = parent::walkSelectClause($selectClause);
 
+        $querySource = $this->findQuerySource();
+
+        if ($config->addQueryComment()) {
+            $comment = ' -- ' . $querySource['file'] . ':' . $querySource['line'] . "\n";
+            $sql = preg_replace('/SELECT/', 'SELECT ' . $comment, $sql, 1);
+        }
+
+        $logger->logQuerySource($querySource['file'], $querySource['line']);
+
+        $this->attachHydrator();
+
+        return $sql;
+    }
+
+    private function findQuerySource()
+    {
         foreach (debug_backtrace() as $row) {
             if (stripos($row['file'], 'vendor') === false) {
-                $comment = ' -- ' . $row['file'] . ':' . $row['line'] . "\n";
-                $sql = preg_replace('/SELECT/', 'SELECT ' . $comment, $sql, 1);
-                return $sql;
+                return $row;
             }
         }
 
+        return ['file' => '*unknown*', 'line' => 0];
+    }
+
+    private function attachHydrator()
+    {
         $mode = $this->getQuery()->getHydrationMode();
         switch ($mode) {
             case Query::HYDRATE_OBJECT:
@@ -41,7 +67,5 @@ class SqlWalker extends BaseWalker
                 $this->getQuery()->setHydrationMode(Watson::HYDRATE_SIMPLEOBJECT);
                 break;
         }
-
-        return $sql;
     }
 }
