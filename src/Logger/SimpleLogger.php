@@ -49,4 +49,9 @@ class SimpleLogger implements LoggerInterface
             $this->queries[$this->queryCount]['endMs'] -
             $this->queries[$this->queryCount]['startMs'];
     }
+
+    public function getQueries()
+    {
+        return $this->queries;
+    }
 }
